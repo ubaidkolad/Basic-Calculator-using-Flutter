@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:chest_xray/class/report.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mini Radiologist',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: MyHomePage(),
     );
@@ -51,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _uploadImage() async {
-    final String endPoint = 'http://10.1.2.103:5000/api';
+    final String endPoint = 'http://192.168.0.109:5000/api';
     Map<String, String> headers = {"Content-type": "application/json"};
     if (_file == null) return;
     String base64Image = base64Encode(_file.readAsBytesSync());
@@ -144,19 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class Reports {
-  String base64Image;
-  int penoProb;
-  String filename;
-  String result;
-  Reports(this.filename, this.base64Image, this.penoProb) {
-    this.penoProb = this.penoProb * 100;
-    if (this.penoProb > 0.35) {
-      this.result = "Penumonia";
-    } else
-      this.result = "Normal";
-  }
-}
+class EdgeInsets {}
 
 class Report extends StatefulWidget {
   final Reports report;
@@ -185,6 +175,24 @@ class _ReportState extends State<Report> {
                     base64Decode(widget.report.base64Image),
                   ),
                 ),
+                Container(
+                  width: 181,
+                  height: 180,
+                  // padding: EdgeInsets.all(20),
+                  child: Card(
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          "Probablity in %",
+                        ),
+                        Expanded(
+                          child: BarChart(chartMaker(widget.report.penoProb),
+                              animate: true),
+                        )
+                      ],
+                    ),
+                  ),
+                )
               ],
             )),
         Padding(
